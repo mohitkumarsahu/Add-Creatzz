@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add-CreatZ — AI Image Advertisement Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #3acacc;
+      --surface: #0e1420;
+      --surface2: #141c2e;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-act: rgba(99, 179, 237, 0.45);
+      --text: #e8edf5;
+      --muted: #5a6a84;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --gold: #f59e0b;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --radius: 14px;
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background mesh ─────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% -10%, rgba(56, 127, 143, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 110%, rgba(6, 182, 212, 0.09) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Layout ──────────────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────── */
+    header {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #540d26 10%, #e0c00c 50%, #7c4f05 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-emoji {
+      font-size: 0.9em;
+      -webkit-text-fill-color: initial;
+    }
+
+    .tagline {
+      margin-top: 0.65rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: #0e1420;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.1rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.75rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: #f9af01;
+      background: rgba(83, 3, 140, 0.914);
+    }
+
+    .badge.blue {
+      border-color: rgba(59, 130, 246, 0.3);
+      color: #f9af01;
+      background: rgba(83, 3, 140, 0.914);
+    }
+
+    /* ── Panel ───────────────────────────────────────────────────── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      animation: fadeUp 0.28s ease both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Form Elements ───────────────────────────────────────────── */
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Upload Zone ─────────────────────────────────────────────── */
+    .upload-zone {
+      position: relative;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--surface2);
+      overflow: hidden;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.drag-over {
+      border-color: var(--border-act);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 2.4rem;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+
+    .upload-text {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .upload-text strong {
+      color: var(--accent2);
+    }
+
+    .upload-preview {
+      display: none;
+      position: relative;
+      margin-top: 1rem;
+    }
+
+    .upload-preview img {
+      max-height: 400px;
+      max-width: 100%;
+      border-radius: 8px;
+      object-fit: contain;
+      border: 1px solid var(--border);
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--danger);
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── Form Stack ──────────────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Generate Button ─────────────────────────────────────────── */
+    .btn-generate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      margin-top: 2rem;
+      padding: 1.1rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.45);
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* ── Spinner ─────────────────────────────────────────────────── */
+    .spinner {
+      display: none;
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255, 255, 255, 0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Status Bar ──────────────────────────────────────────────── */
+    .status-bar {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 0.85rem 1.1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+    }
+
+    .status-bar.loading {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(59, 130, 246, 0.08);
+      border-color: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+    }
+
+    .status-bar.error {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+    }
+
+    /* ── Result Card ─────────────────────────────────────────────── */
+    #result-section {
+      display: none;
+      margin-top: 2.5rem;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .result-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .result-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .result-image-wrap {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      line-height: 0;
+    }
+
+    .result-image-wrap img {
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .result-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    /* ── Tile-based Reveal ──────────────────────────────────────── */
+    .tile-container {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .tile {
+      background: var(--surface2);
+      transition: opacity 0.2s+ cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tile.revealed {
+      opacity: 0;
+    }
+
+    /* ── Skeleton / Building State ──────────────────────────────── */
+    .skeleton-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-image {
+      width: 100%;
+      height: 350px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .skeleton-image::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      to {
+        left: 200%;
+      }
+    }
+
+    .building-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--accent2);
+      text-transform: uppercase;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    /* ── Progress Bar ───────────────────────────────────────────── */
+    .progress-container {
+      width: 80%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-text {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Actions ────────────────────────────────────────────────── */
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .btn-action {
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .btn-action:hover {
+      border-color: var(--border-act);
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .btn-action.primary {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.15));
+      border-color: rgba(99, 179, 237, 0.35);
+      color: #93c5fd;
+    }
+
+    /* ── Language Checkboxes ─────────────────────────────────────── */
+    .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .lang-cb {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0.25rem 0;
+    }
+
+    .lang-cb input {
+      accent-color: var(--accent);
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Mode indicator dot ──────────────────────────────────────── */
+    .mode-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.35rem 0.85rem;
+      border-radius: 99px;
+      margin-bottom: 1.5rem;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: #22d3ee;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    @media (max-width: 640px) {
+      .result-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+    /* ── Facebook Modal ─────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 450px;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      animation: fadeUp 0.3s ease-out;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h3 {
+      font-family: 'Syne', sans-serif;
+      margin: 0;
+      font-size: 1.25rem;
+      color: #fff;
+    }
+    .close-modal {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="page">
+    <header>
+      <div class="logo"><span class="logo-emoji"></span> Add-CreatZ</div>
+      <p class="tagline">AI Powered Advertisement Studio</p>
+      <div class="badge-row">
+        <span class="badge blue">Powered by AI</span>
+        <span class="badge green">High-Fidelity Advertisement Creation</span>
+      </div>
+    </header>
+
+    <div class="panel">
+      <div class="mode-indicator"><span class="dot"></span>Image-Advertisement Engine</div>
+
+      <div class="form-group">
+        <label>Upload image to translate</label>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="file-input" accept="image/*" />
+          <span class="upload-icon">📂</span>
+          <p class="upload-text">Drop image here or <strong>click to browse</strong></p>
+          <div class="upload-preview" id="preview-container">
+            <img id="preview-img" src="" alt="preview" />
+            <button class="remove-btn" onclick="clearFile()">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+        <div class="form-group">
+          <label>Current Language</label>
+          <div class="lang-grid" id="source-langs">
+            <label class="lang-cb"><input type="radio" name="source_lang_radio" value="Hindi"> Hindi</label>
+            <label class="lang-cb"><input type="radio" name="source_lang_radio" value="English" checked> English</label>
+            <label class="lang-cb"><input type="radio" name="source_lang_radio" value="Telugu"> Telugu</label>
+            <label class="lang-cb"><input type="radio" name="source_lang_radio" value="Tamil"> Tamil</label>
+            <label class="lang-cb"><input type="radio" name="source_lang_radio" value="Malayalam"> Malayalam</label>
+            <label class="lang-cb"><input type="radio" name="source_lang_radio" value="Kannada"> Kannada</label>
+            <label class="lang-cb"><input type="radio" name="source_lang_radio" value="Odia"> Odia</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Target Language</label>
+          <div class="lang-grid" id="target-langs">
+            <label class="lang-cb"><input type="checkbox" name="target_lang_cb" value="Hindi"
+                onchange="limitSelection(this)" checked> Hindi</label>
+            <label class="lang-cb"><input type="checkbox" name="target_lang_cb" value="English"
+                onchange="limitSelection(this)"> English</label>
+            <label class="lang-cb"><input type="checkbox" name="target_lang_cb" value="Telugu"
+                onchange="limitSelection(this)"> Telugu</label>
+            <label class="lang-cb"><input type="checkbox" name="target_lang_cb" value="Tamil"
+                onchange="limitSelection(this)"> Tamil</label>
+            <label class="lang-cb"><input type="checkbox" name="target_lang_cb" value="Malayalam"
+                onchange="limitSelection(this)"> Malayalam</label>
+            <label class="lang-cb"><input type="checkbox" name="target_lang_cb" value="Kannada"
+                onchange="limitSelection(this)"> Kannada</label>
+            <label class="lang-cb"><input type="checkbox" name="target_lang_cb" value="Odia"
+                onchange="limitSelection(this)"> Odia</label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="btn-generate" onclick="generate()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-label">✨ Generate Image</span>
+      </button>
+      <div class="status-bar" id="status-bar"></div>
+    </div>
+
+    <div id="result-section">
+      <div class="result-header">
+        <span class="result-title" id="result-title-main">Localized Results</span>
+        <span class="result-meta" id="result-meta"></span>
+      </div>
+      <div id="result-grid" class="result-grid">
+        <!-- Building/Streaming skeletons will appear here -->
+      </div>
+      <div id="clear-container" style="margin-top: 2rem; text-align: center; display: none;">
+        <button class="btn-action" style="display: inline-flex; width: auto; padding: 0.8rem 2rem;"
+          onclick="clearResult()">✕ Clear All Results</button>
+      </div>
+    </div>
+
+    <!-- Facebook Page Selection Modal -->
+    <div id="fb-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Select Facebook Pages</h3>
+          <button class="close-modal" onclick="closeFBModal()">✕</button>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 1rem;">Choose the pages where you want to post this advertisement:</p>
+        <div id="fb-page-list" class="lang-grid" style="max-height: 250px; margin-bottom: 1.5rem;">
+          <!-- Pages will be injected here -->
+        </div>
+        <button class="btn-generate" id="btn-confirm-post" onclick="confirmMultiPost()">
+          <div class="spinner" id="fb-spinner"></div>
+          <span id="fb-confirm-label">🚀 Confirm Posting</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content" style="text-align:center;">
+        <div style="font-size: 3.5rem; margin-bottom: 1rem;">✅</div>
+        <h3 style="font-family: 'Syne', sans-serif; color: #fff; margin-bottom: 0.5rem; font-size: 1.5rem;">Posted Successfully</h3>
+        <p style="color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem;">Your content has been published to the selected pages.</p>
+        <button class="btn-generate" onclick="document.getElementById('success-modal').style.display='none'">Awesome!</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8100';
+
+    // Check for success or session from Facebook redirect
+    window.onload = async () => {
+      const params = new URLSearchParams(window.location.search);
+      
+      // Case 1: Post successful (legacy or after multi-post redirect)
+      if (params.get('posted') === 'true') {
+        showSuccessMessage('✅ Successfully posted to Facebook!');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
+      // Case 2: Returned from FB with a session for page selection
+      const fbSession = params.get('fb_session');
+      if (fbSession) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        openPageSelection(fbSession);
+      }
+    };
+
+    function showSuccessMessage(msg) {
+      const bar = document.getElementById('status-bar');
+      bar.className = 'status-bar';
+      bar.style.background = 'rgba(34, 197, 94, 0.1)';
+      bar.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+      bar.style.color = '#4ade80';
+      bar.innerHTML = msg;
+      bar.style.display = 'flex';
+      setTimeout(() => bar.style.display = 'none', 5000);
+    }
+
+    const fileInput = document.getElementById('file-input');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImg = document.getElementById('preview-img');
+    const uploadZone = document.getElementById('upload-zone');
+
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      previewImg.src = URL.createObjectURL(file);
+      previewContainer.style.display = 'block';
+    });
+
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault(); uploadZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      fileInput.files = e.dataTransfer.files;
+      previewImg.src = URL.createObjectURL(file);
+      previewContainer.style.display = 'block';
+    });
+
+    function clearFile() {
+      fileInput.value = '';
+      previewImg.src = '';
+      previewContainer.style.display = 'none';
+    }
+
+    function limitSelection(checkbox) {
+      const checked = document.querySelectorAll('input[name="target_lang_cb"]:checked');
+      if (checked.length > 3) {
+        checkbox.checked = false;
+        showError('Maximum 3 target languages allowed.');
+      } else {
+        clearStatus();
+      }
+    }
+
+    function setLoading(on, message = 'Processing multi-language generation…') {
+      const btn = document.getElementById('btn-generate');
+      const spinner = document.getElementById('spinner');
+      const label = document.getElementById('btn-label');
+      const bar = document.getElementById('status-bar');
+
+      btn.disabled = on;
+      spinner.style.display = on ? 'block' : 'none';
+      if (on) {
+        label.textContent = 'Processing…';
+        bar.className = 'status-bar loading';
+        bar.innerHTML = `<div class="spinner" style="display:block;width:16px;height:16px;"></div>${message}`;
+        bar.style.display = 'flex';
+      } else {
+        label.textContent = '✨ Generate Image';
+      }
+    }
+
+    function showError(msg) {
+      const bar = document.getElementById('status-bar');
+      bar.className = 'status-bar error';
+      bar.innerHTML = `⚠️ ${msg}`;
+      bar.style.display = 'flex';
+    }
+
+    function clearStatus() {
+      const bar = document.getElementById('status-bar');
+      bar.style.display = 'none';
+    }
+
+    // ─── Real-time Streaming & Reveal Logic ─────────────────────────
+    let progressIntervals = {};
+
+    function startBuildingSkeleton(lang) {
+      const grid = document.getElementById('result-grid');
+      const skeleton = document.createElement('div');
+      skeleton.className = 'skeleton-card';
+      skeleton.id = `card-${lang}`;
+      skeleton.innerHTML = `
+        <div style="font-size: 0.72rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--muted); text-transform: uppercase;">
+          Target: ${lang}
+        </div>
+        <div class="skeleton-image">
+          <span class="building-label">Building Image...</span>
+          <div class="progress-container">
+            <div class="progress-bar" id="pb-${lang}"></div>
+          </div>
+          <span class="progress-text" id="pt-${lang}">0%</span>
+        </div>
+      `;
+      grid.appendChild(skeleton);
+
+      let p = 0;
+      progressIntervals[lang] = setInterval(() => {
+        if (p < 95) {
+          p += Math.random() * 1.5;
+          const bar = document.getElementById(`pb-${lang}`);
+          const text = document.getElementById(`pt-${lang}`);
+          if (bar) bar.style.width = `${p}%`;
+          if (text) text.innerText = `${Math.floor(p)}%`;
+        }
+      }, 500);
+    }
+
+    function injectFinalResult(res) {
+      console.log('Injecting result for:', res.language);
+      const card = document.getElementById(`card-${res.language}`);
+      if (!card) {
+        console.error(`Card for ${res.language} not found!`);
+        return;
+      }
+
+      clearInterval(progressIntervals[res.language]);
+      const blobUrl = `data:image/png;base64,${res.image}`;
+
+      card.className = 'result-card';
+      card.innerHTML = `
+        <div style="font-size: 0.72rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent2); text-transform: uppercase;">
+          Target: ${res.language}
+        </div>
+        <div class="result-image-wrap">
+          <img src="${blobUrl}" alt="Result" style="display: block; width: 100%;">
+          <!-- Tile Overlay for Reveal Effect -->
+          <div class="tile-container" id="tiles-${res.language}">
+            ${Array(16).fill('<div class="tile"></div>').join('')}
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="btn-action primary" onclick="downloadSingle('${blobUrl}', '${res.language}')">⬇ Download</button>
+          <button class="btn-action" onclick="useSingleAsInput('${blobUrl}')">↩ Use as Input</button>
+          <button class="btn-action" onclick="postToFacebook('${blobUrl}', 'Check out my new AI-generated advertisement in ${res.language}!')" style="background: #1877F2; color: white; border: none;">
+            <svg style="width:14px; height:14px; fill:white" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Post
+          </button>
+        </div>
+      `;
+
+      // Force reveal tiles quickly
+      setTimeout(() => {
+        revealTiles(`tiles-${res.language}`);
+      }, 100);
+
+      // Safety fallback: reveal everything after 2 seconds
+      setTimeout(() => {
+        const container = document.getElementById(`tiles-${res.language}`);
+        if (container) {
+          container.querySelectorAll('.tile').forEach(t => t.classList.add('revealed'));
+        }
+      }, 2000);
+
+      document.getElementById('clear-container').style.display = 'block';
+    }
+
+    function revealTiles(containerId) {
+      const container = document.getElementById(containerId);
+      const tiles = Array.from(container.querySelectorAll('.tile'));
+
+      // Shuffle tiles for random reveal order
+      for (let i = tiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+      }
+
+      tiles.forEach((tile, index) => {
+        setTimeout(() => {
+          tile.classList.add('revealed');
+        }, index * 45); // progressive delay
+      });
+    }
+
+    async function generate() {
+      clearStatus();
+      const targets = Array.from(document.querySelectorAll('input[name="target_lang_cb"]:checked')).map(cb => cb.value);
+      const sourceLang = document.querySelector('input[name="source_lang_radio"]:checked')?.value;
+
+      if (!fileInput.files[0]) { showError('Please upload an image.'); return; }
+      if (!sourceLang || targets.length === 0) { showError('Please select languages.'); return; }
+
+      const grid = document.getElementById('result-grid');
+      grid.innerHTML = '';
+      document.getElementById('result-section').style.display = 'block';
+      document.getElementById('clear-container').style.display = 'none';
+
+      targets.forEach(lang => startBuildingSkeleton(lang));
+
+      const formData = new FormData();
+      const t0 = Date.now();
+      formData.append('image', fileInput.files[0]);
+      formData.append('prompt', "REFINE THE IMAGE");
+      formData.append('source_lang', sourceLang);
+      formData.append('target_lang', targets.join(','));
+
+      setLoading(true);
+
+      try {
+        const response = await fetch(`${API_BASE}/generate`, { method: 'POST', body: formData });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const res = JSON.parse(line);
+            if (res.error) throw new Error(res.error);
+            injectFinalResult(res);
+
+            const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+            document.getElementById('result-meta').textContent = `Streaming Mode · Last update: ${elapsed}s`;
+          }
+        }
+
+        document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        clearStatus();
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function downloadSingle(url, lang) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `translation-${lang}-${Date.now()}.png`;
+      a.click();
+    }
+
+    function useSingleAsInput(url) {
+      fetch(url).then(r => r.blob()).then(blob => {
+        const file = new File([blob], 'result.png', { type: 'image/png' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+        previewImg.src = url;
+        previewContainer.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    function clearResult() {
+      document.getElementById('result-section').style.display = 'none';
+      document.getElementById('result-grid').innerHTML = '';
+      Object.values(progressIntervals).forEach(clearInterval);
+      progressIntervals = {};
+    }
+
+    let currentFBSession = null;
+
+    async function openPageSelection(sessionID) {
+      currentFBSession = sessionID;
+      setLoading(true, 'Fetching your Facebook pages...');
+      
+      try {
+        const response = await fetch(`http://127.0.0.1:8101/get_pages?fb_session=${sessionID}`);
+        if (!response.ok) throw new Error('Failed to fetch pages.');
+        
+        const pages = await response.json();
+        const listContainer = document.getElementById('fb-page-list');
+        listContainer.innerHTML = '';
+        
+        if (pages.length === 0) {
+          listContainer.innerHTML = '<p style="color:var(--muted); font-size:0.8rem; grid-column:span 2; text-align:center;">No managed pages found. Post will default to your profile.</p>';
+        } else {
+          pages.forEach(page => {
+            const label = document.createElement('label');
+            label.className = 'lang-cb';
+            label.innerHTML = `<input type="checkbox" name="fb_page_cb" value="${page.id}"> ${page.name}`;
+            listContainer.appendChild(label);
+          });
+        }
+        
+        document.getElementById('fb-modal').style.display = 'flex';
+      } catch (err) {
+        showError('Error: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function closeFBModal() {
+      document.getElementById('fb-modal').style.display = 'none';
+      currentFBSession = null;
+    }
+
+    async function confirmMultiPost() {
+      const selected = Array.from(document.querySelectorAll('input[name="fb_page_cb"]:checked')).map(cb => cb.value);
+      const btn = document.getElementById('btn-confirm-post');
+      const spinner = document.getElementById('fb-spinner');
+      const label = document.getElementById('fb-confirm-label');
+      
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      label.textContent = 'Posting...';
+      
+      try {
+        const response = await fetch('http://127.0.0.1:8101/post_multi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fb_session: currentFBSession, page_ids: selected })
+        });
+        
+        if (!response.ok) throw new Error('Post failed.');
+        
+        const data = await response.json();
+        console.log('Facebook Post Results:', data);
+        
+        const successCount = data.results.filter(r => r.status === 'success').length;
+        if (successCount > 0) {
+          document.getElementById('success-modal').style.display = 'flex';
+        } else {
+          showError('Failed to post to any pages.');
+        }
+        closeFBModal();
+      } catch (err) {
+        showError('Error during posting: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        label.textContent = '🚀 Confirm Posting';
+      }
+    }
+
+    async function postToFacebook(imageUrl, caption) {
+      try {
+        setLoading(true, 'Preparing to post to Facebook...');
+        
+        const response = await fetch('http://127.0.0.1:8101/prepare_post', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_base64: imageUrl, caption: caption })
+        });
+
+        if (!response.ok) throw new Error('Facebook service not responding.');
+        
+        const data = await response.json();
+        if (data.login_url) {
+          window.location.href = data.login_url;
+        } else if (data.fb_session) {
+          openPageSelection(data.fb_session);
+        } else {
+          showError('Failed to prepare Facebook post.');
+        }
+      } catch (err) {
+        console.error(err);
+        showError('Error connecting to Facebook service (Ensure port 8101 is active).');
+      } finally {
+        setLoading(false);
+      }
+    }
+  </script>
+</body>
+
+</html>

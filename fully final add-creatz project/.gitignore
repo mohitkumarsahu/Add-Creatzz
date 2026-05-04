@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+*.png
+scratch/
+
+# Ignore txt files except requirements
+*.txt
+!requirements.txt
