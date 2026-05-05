@@ -9,13 +9,15 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install system-level dependencies
-# libgl1-mesa-glx and libglib2.0-0 are essential for OpenCV and image processing
+# libgl1 and libglib2.0-0 are essential for OpenCV and image processing
 # build-essential is included in case any dependencies need to compile C extensions
+# nginx is the reverse proxy that routes all services through port 7860
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     build-essential \
     procps \
+    nginx \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory within the container
@@ -27,25 +29,20 @@ COPY requirements.txt .
 
 # Install Python dependencies
 # --no-cache-dir reduces the image size by not storing the pip cache
-# Note: This project has heavy dependencies (Torch, TensorFlow, PaddlePaddle), so this step will take time.
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project directory into the container
 COPY . .
 
-# Expose the ports used by the application components:
-# 8080 - Frontend (served via Python's http.server)
-# 8100 - Main Backend API (FastAPI - NanaBuild Studio)
-# 8101 - Facebook Posting Service (FastAPI)
-EXPOSE 8080 8100 8101
+# Copy nginx config to the standard location
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Command to launch the full application stack
-# This command starts three concurrent processes:
-# 1. A static file server for the frontend (index.html) on port 8080
-# 2. The main AI generation backend on port 8100
-# 3. The Facebook integration service on port 8101
-# 'wait -n' ensures the container exits if any of the core processes fail.
-CMD python -m http.server 8080 & \
-    python main.py & \
-    python facebook_poster/fb_server.py & \
-    wait -n
+# Make the start script executable
+RUN chmod +x start.sh
+
+# HuggingFace Spaces ONLY exposes port 7860 to the internet.
+# All internal services (8080, 8100, 8101) are proxied through nginx on 7860.
+EXPOSE 7860
+
+# Launch the full application stack via the start script
+CMD ["bash", "start.sh"]
